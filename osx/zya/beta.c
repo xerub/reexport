@@ -1,15 +1,9 @@
-#define IMPORT_PRIVATE(anchor, offset, alias) \
-    void *alias(void *a, void *b, void *c, void *d, void *e, void *f) \
-    { \
-        extern char anchor[]; \
-        return ((void *(*)())(anchor + offset))(a, b, c, d, e, f); \
-    }
+static int unused __attribute__((unused));
 
-IMPORT_PRIVATE(create_strlit, 0x20c0, cfgopt_t__apply)
-
+#if 0
 /*
  * function wrapping: this is slightly different than just aliasing, because we need
- * to provide BOTH symbols *and* rely on the other library for backend implementation
+ * to provide BOTH symbols *and* rely on the first library for backend implementation
  */
 
 #include <stdio.h>
@@ -31,3 +25,4 @@ const struct {
 } interposers[] __attribute__((section("__DATA, __interpose"))) = {
     { .repl = (void *)run_plugin, .orig = (void *)zya936 },
 };
+#endif

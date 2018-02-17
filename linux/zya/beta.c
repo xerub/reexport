@@ -13,26 +13,14 @@ extern char zya1094;
 #define IMPORT(import, alias) \
     extern void *import(); \
     void *alias() { return import(); } /* create code trampoline */
-#define IMPORT_PRIVATE(anchor, offset, alias) \
-    void *alias(void *a, void *b, void *c, void *d, void *e, void *f) \
-    { \
-        extern void *anchor(); \
-        return ((void *(*)())((unsigned long)anchor + offset))(a, b, c, d, e, f); \
-    }
 #else /* IFUNC */
 #define IMPORT(import, alias) \
     extern void *import(); \
     static void *(*resolve_##alias(void))() { return import; } \
     void *alias() __attribute__((ifunc("resolve_" #alias)));
-#define IMPORT_PRIVATE(anchor, offset, alias) \
-    extern void *anchor(); \
-    static void *(*resolve_##alias(void))() { return (void *(*)())((unsigned long)anchor + offset); } \
-    void *alias() __attribute__((ifunc("resolve_" #alias)));
 #endif /* IFUNC */
 
 IMPORT(zya146, decode_insn)
-
-IMPORT_PRIVATE(create_strlit, 0x4950, cfgopt_t__apply)
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
@@ -71,9 +59,10 @@ _start(void)
     __builtin_trap();
 }
 
+#if 0
 /*
  * function wrapping: this is slightly different than just aliasing, because we need
- * to provide BOTH symbols *and* rely on the other library for backend implementation
+ * to provide BOTH symbols *and* rely on the first library for backend implementation
  */
 
 #include <stdio.h>
@@ -91,3 +80,4 @@ run_plugin(char **a, long b)
     return ((typeof(run_plugin) *)func)(a, b);
 }
 int zya936(char **a, long b) __attribute__((alias("run_plugin")));
+#endif
